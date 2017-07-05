@@ -1,0 +1,117 @@
+service: remotepixel-api
+
+provider:
+  name: aws
+  runtime: python3.6
+  stage: production
+
+  region: ${opt:region} #us-west-2  or eu-central-1
+
+  environment:
+    PYTHONPATH: /var/task/vendored
+    GDAL_CACHEMAX: 75%
+    GDAL_TIFF_OVR_BLOCKSIZE: 512
+    VSI_CACHE: TRUE
+    VSI_CACHE_SIZE: 40000000
+    GDAL_DISABLE_READDIR_ON_OPEN: true
+    CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".TIF,.ovr,.jp2"
+
+    OUTPUT_BUCKET: remotepixel-${opt:region}
+
+    GDAL_DATA: /var/task/share/gdal # Needed if build gdal from source
+
+  iamRoleStatements:
+  -  Effect: "Allow"
+     Action:
+       - s3:GetObject
+     Resource:
+       - "arn:aws:s3:::landsat-pds/*"
+
+  -  Effect: "Allow"
+     Action:
+       - "s3:*"
+     Resource:
+       - "arn:aws:s3:::sentinel-s2-l1c/*"
+
+  -  Effect: "Allow"
+     Action:
+       - "s3:*"
+     Resource:
+       - "arn:aws:s3:::remotepixel-${opt:region}/*"
+
+
+  deploymentBucket: remotepixel-${opt:region} #Optional Bucket where you store your lambda package
+
+package:
+  artifact: package.zip
+
+functions:
+  l8_overview:
+    handler: handler.l8_overview_handler
+    memorySize: 1536
+    timeout: 10
+    events:
+      - http:
+          path: l8_overview
+          method: get
+          cors: true
+
+  l8_full:
+    handler: handler.l8_full_handler
+    memorySize: 1536
+    timeout: 45
+    events:
+      - http:
+          path: l8_full
+          method: get
+          cors: true
+
+  l8_ndvi_point:
+    handler: handler.l8_ndvi_point_handler
+    memorySize: 1536
+    timeout: 30
+    events:
+      - http:
+          path: l8_ndvi_point
+          method: get
+          cors: true
+
+  l8_ndvi_area:
+    handler: handler.l8_ndvi_area_handler
+    memorySize: 1536
+    timeout: 30
+    events:
+      - http:
+          path: l8_ndvi_area
+          method: get
+          cors: true
+
+  l8_mosaic:
+    handler: handler.l8_mosaic_handler
+    memorySize: 1536
+    timeout: 300
+    events:
+      - http:
+          path: l8_mosaic
+          method: get
+          cors: true
+
+  srtm_mosaic:
+    handler: handler.srtm_mosaic_handler
+    memorySize: 1536
+    timeout: 300
+    events:
+      - http:
+          path: srtm_mosaic
+          method: get
+          cors: true
+
+  s2_overview:
+    handler: handler.s2_overview_handler
+    memorySize: 1536
+    timeout: 20
+    events:
+      - http:
+          path: s2_overview
+          method: get
+          cors: true
