@@ -8,11 +8,10 @@ Process Landsat and Sentinel data using AWS Lambda functions
 Serverless architecture powering most of [remotepixel.ca](https://remotepixel.ca/) cloud processing projects (e.g [Landsat full resolution donwload in satellitesearch](https://remotepixel.ca/blog/landsat-full-resolution-in-satellitesearch_20161006.html)).
 
 #### Python 3.6 + Rasterio + AWS Lambda + API gateway
-blabla
+`# TO DO`
 
 ### How to
-This is not really made to be used directly
-
+`# TO DO`
 
 ### Requierement
   - AWS Account
@@ -34,7 +33,8 @@ npm install -g serverless
 make deploy-us && make deploy-eu
 ```
 
-
+#### Why us & eu ?
+Landsat and SRTM data are hosted in **us-west-2** region while Sentinel data are in **eu-central-1**. By deploying twice in `us-west-2`  and in `eu-central-1` we can have Landsat and Sentinel functions running as close as possible to the data. Make sure to call the good endpoint when working with sentinel (`execute-api.eu-central-1.amazonaws.com`) and Landsat (`execute-api.us-west-2.amazonaws.com`).
 
 ### functions
 
