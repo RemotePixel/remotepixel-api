@@ -123,13 +123,24 @@ def l8_mosaic_handler(event, context):
     try:
         info = event.get('queryStringParameters')
         scenes = info.get('scenes')
+        scenes = scenes.split(',') if isinstance(scenes, str) else scenes
         bands = info.get('bands', [4,3,2])
         bands = eval(bands) if isinstance(bands, str) else bands
         task_id = info.get('uuid', str(uuid.uuid1()))
 
         out = l8_mosaic.create(scenes, task_id, os.environ.get('OUTPUT_BUCKET'), bands)
 
-        return response('OK', 'application/json', json.dumps({'uuid': task_id}), True)
+        s3_path = f's3://{os.environ.get("OUTPUT_BUCKET")}/data/srtm/{task_id}.tif'
+        url = f'https://s3-us-west-2.amazonaws.com/{os.environ.get("OUTPUT_BUCKET")}/data/srtm/{task_id}.tif'
+
+        resp = {
+            'uuid': task_id,
+            'region': os.environ.get("AWS_REGION"),
+            'bucket': os.environ.get("OUTPUT_BUCKET"),
+            'tif': f'data/mosaic/{task_id}_mosaic.tif',
+            'json': f'data/mosaic/{task_id}.json'
+        }
+        return response('OK', 'application/json', json.dumps(resp), True)
     except:
         return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error while creating the mosaic'}), True)
 
@@ -142,7 +153,7 @@ def srtm_mosaic_handler(event, context):
     try:
         info = event.get('queryStringParameters')
         tiles = info.get('tiles')
-        tiles = eval(tiles) if isinstance(tiles, str) else tiles
+        tiles = tiles.split(',') if isinstance(tiles, str) else tiles
         task_id = info.get('uuid', str(uuid.uuid1()))
 
         if len(tiles) > 8:
@@ -150,10 +161,13 @@ def srtm_mosaic_handler(event, context):
 
         out = srtm_mosaic.create(tiles, task_id, os.environ.get('OUTPUT_BUCKET'))
 
-        s3_path = f's3://{os.environ.get("OUTPUT_BUCKET")}/data/srtm/{task_id}.tif'
-        url = f'https://s3-us-west-2.amazonaws.com/{os.environ.get("OUTPUT_BUCKET")}/data/srtm/{task_id}.tif'
-
-        return response('OK', 'application/json', json.dumps({'url': url, 's3': s3_path}), True)
+        resp = {
+            'uuid': task_id,
+            'region': os.environ.get("AWS_REGION"),
+            'bucket': os.environ.get("OUTPUT_BUCKET"),
+            'tif': f'data/srtm/{task_id}_mosaic.tif'
+        }
+        return response('OK', 'application/json', json.dumps(resp), True)
     except:
         return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error while creating the mosaic'}), True)
 
@@ -167,7 +181,7 @@ def s2_overview_handler(event, context):
         info = event.get('queryStringParameters')
         scene = info.get('scene')
         bands = info.get('bands', ['04','03','02'])
-        bands = eval(bands) if isinstance(bands, str) else bands
+        bands = bands.split(',') if isinstance(bands, str) else bands
         img_format = info.get('format', 'jpeg')
 
         out = s2_ovr.create(scene, bands, img_format)
