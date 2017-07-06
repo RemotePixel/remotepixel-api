@@ -25,6 +25,8 @@ Serverless architecture powering most of [remotepixel.ca](https://remotepixel.ca
 ⚠️ ⚠️ ⚠️
 You need to update `OUTPUT BUCKET` value in https://github.com/RemotePixel/remotepixel-api/blob/master/serverless.yml ([here](https://github.com/RemotePixel/remotepixel-api/blob/654d98b0b5ea7ee21c8e343573e049e026595cf6/serverless.yml#L19) and [here](https://github.com/RemotePixel/remotepixel-api/blob/654d98b0b5ea7ee21c8e343573e049e026595cf6/serverless.yml#L40))
 
+Same for `deploymentBucket` ([here](https://github.com/RemotePixel/remotepixel-api/blob/34ffff88f0c6ac5073401443dda0357ffb274370/serverless.yml#L42))
+
 ```
 make build && make package
 
