@@ -23,6 +23,9 @@ This is not really made to be used directly
 
 ### Creating and deploy
 
+⚠️ ⚠️ ⚠️
+You need to update `OUTPUT BUCKET` value in https://github.com/RemotePixel/remotepixel-api/blob/master/serverless.yml ([here](https://github.com/RemotePixel/remotepixel-api/blob/654d98b0b5ea7ee21c8e343573e049e026595cf6/serverless.yml#L19) and [here](https://github.com/RemotePixel/remotepixel-api/blob/654d98b0b5ea7ee21c8e343573e049e026595cf6/serverless.yml#L40))
+
 ```
 make build && make package
 
@@ -80,7 +83,7 @@ Example:
 ```bash
 $ curl "https://{API}.execute-api.us-west-2.amazonaws.com/production/l8_full?scene=LC08_L1TP_013030_20170520_20170520_01_RT&bands=5,4,2"
 
-{"path": "https://s3-us-west-2.amazonaws.com/remotepixel-us-west-2/data/landsat/LC08_L1TP_013030_20170520_20170520_01_RT_B542.tif"}
+{"path": "https://{s3-us-west-2}.amazonaws.com/{my-bucket}/data/landsat/LC08_L1TP_013030_20170520_20170520_01_RT_B542.tif"}
 ```
 
 ## l8_ndvi_point
@@ -118,7 +121,6 @@ Example:
 $ curl "https://{API}.execute-api.us-west-2.amazonaws.com/production/l8_ndvi_area?scene=LC08_L1TP_013030_20170520_20170520_01_RT&bbox=-73,42,-71,43"
 
 /9j/4AAQSkZJRgABAQAAAQABAAD/...
-
 ```
 
 ## l8_mosaic
@@ -135,7 +137,7 @@ return:
 Example:
 
 ```bash
-$ curl "https://kbbaqpm7th.execute-api.us-west-2.amazonaws.com/production/l8_mosaic?scenes=LC08_L1TP_016038_20170610_20170627_01_T1,LC08_L1TP_017038_20170516_20170525_01_T1,LC08_L1TP_017037_20170516_20170525_01_T1&bands=-5,4,3"
+$ curl "https://{API}.execute-api.us-west-2.amazonaws.com/production/l8_mosaic?scenes=LC08_L1TP_016038_20170610_20170627_01_T1,LC08_L1TP_017038_20170516_20170525_01_T1,LC08_L1TP_017037_20170516_20170525_01_T1&bands=-5,4,3"
 
 {
     'uuid': '00000000000000000000',
@@ -144,7 +146,6 @@ $ curl "https://kbbaqpm7th.execute-api.us-west-2.amazonaws.com/production/l8_mos
     'tif': 'data/mosaic/00000000000000000000_mosaic.tif',
     'json': 'data/mosaic/00000000000000000000.json'
 }
-
 ```
 
 ## srtm_mosaic
@@ -168,7 +169,6 @@ $ curl "https://{API}.execute-api.us-west-2.amazonaws.com/production/srtm_mosaic
     'bucket': 'my-bucket',
     'tif': 'data/srtm/00000000000000000000.tif',
 }
-
 ```
 
 

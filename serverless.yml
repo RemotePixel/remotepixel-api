@@ -39,7 +39,6 @@ provider:
      Resource:
        - "arn:aws:s3:::remotepixel-${opt:region}/*"
 
-
   deploymentBucket: remotepixel-${opt:region} #Optional Bucket where you store your lambda package
 
 package:
