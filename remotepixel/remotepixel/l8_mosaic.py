@@ -13,6 +13,7 @@ from rasterio.vrt import WarpedVRT
 from rasterio.warp import reproject, transform_bounds, Resampling, calculate_default_transform
 from rasterio.io import MemoryFile
 from rasterio.enums import Resampling
+from rio_toa import reflectance
 
 from remotepixel import utils
 
@@ -54,7 +55,14 @@ def create(scenes, uuid, bucket, bands=[4,3,2]):
 
                             matrix = vrt.read(indexes=1, out_shape=(height, width))
 
-                    matrix = utils.landsat_to_toa(matrix, bands[b], meta_data)
+                    MR = float(utils.landsat_mtl_extract(
+                        meta_data, f'REFLECTANCE_MULT_BAND_{bands[b]}'))
+                    AR = float(utils.landsat_mtl_extract(
+                        meta_data, f'REFLECTANCE_ADD_BAND_{bands[b]}'))
+                    E = float(utils.landsat_mtl_extract(
+                        meta_data, 'SUN_ELEVATION'))
+
+                    matrix = reflectance.reflectance(matrix, MR, AR, E, src_nodata=0) * 10000
 
                     minRef = float(utils.landsat_mtl_extract(
                         meta_data, f'REFLECTANCE_MINIMUM_BAND_{bands[b]}')) * 10000
@@ -65,18 +73,18 @@ def create(scenes, uuid, bucket, bands=[4,3,2]):
                     matrix = np.where(
                         matrix > 0,
                         utils.linear_rescale(matrix, in_range=[int(minRef), int(maxRef)], out_range=[1, 255]),
-                        0)
+                        0).astype(np.uint8)
 
                     mask = np.ma.masked_values(matrix, 0)
                     s = np.ma.notmasked_contiguous(mask)
                     mask = None
                     matrix = matrix.ravel()
                     for sl in s:
-                        matrix[sl.start: sl.start + 7] = 0
-                        matrix[sl.stop - 7:sl.stop] = 0
+                        matrix[sl.start: sl.start + 5] = 0
+                        matrix[sl.stop - 5:sl.stop] = 0
                     matrix = matrix.reshape((height, width))
 
-                    dataset.write(matrix.astype(np.uint8), indexes=b+1)
+                    dataset.write(matrix, indexes=b+1)
 
             return outpath
         except:

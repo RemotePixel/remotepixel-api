@@ -8,8 +8,9 @@ from PIL import Image
 
 import rasterio as rio
 from rasterio.enums import Resampling
-from remotepixel import utils
+from rio_toa import reflectance
 
+from remotepixel import utils
 
 def create(scene, bands=[4,3,2], img_format='jpeg', ovrSize=512):
 
@@ -17,34 +18,23 @@ def create(scene, bands=[4,3,2], img_format='jpeg', ovrSize=512):
 
         address, band, meta = args
 
+        MR = float(utils.landsat_mtl_extract(meta, f'REFLECTANCE_MULT_BAND_{band}'))
+        AR = float(utils.landsat_mtl_extract(meta, f'REFLECTANCE_ADD_BAND_{band}'))
+        E = float(utils.landsat_mtl_extract(meta, 'SUN_ELEVATION'))
+
         with rio.open(address) as src:
             matrix = src.read(indexes=1,
                 out_shape=(ovrSize, ovrSize),
                 resampling=Resampling.bilinear).astype(src.profile['dtype'])
 
-            matrix = utils.landsat_to_toa(matrix, band, meta)
+            matrix = reflectance.reflectance(matrix, MR, AR, E, src_nodata=0) * 10000
+            imgRange = np.percentile(matrix[matrix > 0], (2, 98)).tolist()
 
-            mask = np.ma.masked_values(matrix, 0)
-            s = np.ma.notmasked_contiguous(mask)
-            mask = None
-            matrix = matrix.ravel()
-            for sl in s:
-                matrix[sl.start: sl.start + 10] = 0
-                matrix[sl.stop - 10:sl.stop] = 0
-            matrix = matrix.reshape((ovrSize, ovrSize))
+            matrix = np.where(matrix > 0,
+                utils.linear_rescale(matrix,
+                in_range=imgRange, out_range=[1, 255]), 0).astype(np.uint8)
 
-            minRef = float(utils.landsat_mtl_extract(
-                meta, f'REFLECTANCE_MINIMUM_BAND_{band}')) * 10000
-
-            maxRef = float(utils.landsat_mtl_extract(
-                meta, f'REFLECTANCE_MAXIMUM_BAND_{band}')) * 10000
-
-            matrix = np.where(
-                matrix > 0,
-                utils.linear_rescale(matrix, in_range=[int(minRef), int(maxRef)], out_range=[1, 255]),
-                0)
-
-            return matrix.astype(np.uint8)
+            return matrix
 
 
     if img_format not in ['png', 'jpeg']:

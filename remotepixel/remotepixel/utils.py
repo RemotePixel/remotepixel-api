@@ -47,20 +47,6 @@ def landsat_mtl_extract(meta, param):
     raise ValueError(f'No {param} found')
 
 
-def landsat_to_toa(dn, band, mfile):
-    '''
-    Conversion to Top Of Atmosphere planetary reflectance
-    Ref: http://landsat.usgs.gov/Landsat8_Using_Product.php
-    '''
-
-    Mp = float(landsat_mtl_extract(mfile, f'REFLECTANCE_MULT_BAND_{band}'))
-    Ap = float(landsat_mtl_extract(mfile, f'REFLECTANCE_ADD_BAND_{band}'))
-    SE = math.radians(float(landsat_mtl_extract(mfile, 'SUN_ELEVATION')))
-
-    return np.where(dn > 0,
-        ((Mp*dn + Ap) / math.sin(SE) * 10000).astype(np.uint16), 0)
-
-
 def landsat_parse_scene_id(sceneid):
     '''
     Author @perrygeo - http://www.perrygeo.com

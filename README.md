@@ -139,7 +139,7 @@ return:
 Example:
 
 ```bash
-$ curl "https://{API}.execute-api.us-west-2.amazonaws.com/production/l8_mosaic?scenes=LC08_L1TP_016038_20170610_20170627_01_T1,LC08_L1TP_017038_20170516_20170525_01_T1,LC08_L1TP_017037_20170516_20170525_01_T1&bands=-5,4,3"
+$ curl "https://{API}.execute-api.us-west-2.amazonaws.com/production/l8_mosaic?scenes=LC08_L1TP_016038_20170610_20170627_01_T1,LC08_L1TP_017038_20170516_20170525_01_T1,LC08_L1TP_017037_20170516_20170525_01_T1&bands=5,4,3"
 
 {
     'uuid': '00000000000000000000',

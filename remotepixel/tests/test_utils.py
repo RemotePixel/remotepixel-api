@@ -38,13 +38,6 @@ def test_landsat_mtl_extract_Error():
     with pytest.raises(ValueError):
         utils.landsat_mtl_extract(meta_data, 'CORNER_UL_PRODUCT')
 
-
-def test_landsat_to_toa_valid():
-    data = np.zeros((1,1), dtype=np.uint16) + 10000
-    expectedContent = np.zeros((1,1), dtype=np.uint16) + 1145
-    assert utils.landsat_to_toa(data, 4, meta_data) == expectedContent
-
-
 def test_linear_rescale_valid():
     data = np.zeros((1,1), dtype=np.uint16) + 1000
     expectedContent = np.zeros((1,1), dtype=np.uint16) + 25.5

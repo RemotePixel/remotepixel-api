@@ -87,6 +87,7 @@ RUN cd $APP_DIR \
       --with-static-proj4=$APP_DIR/local \
       --with-geos=$APP_DIR/local/bin/geos-config \
       --with-openjpeg=$APP_DIR/local \
+      --with-jpeg \
       --with-hide-internal-symbols \
       --with-curl \
       --without-bsb \
@@ -107,7 +108,6 @@ RUN cd $APP_DIR \
       --without-ingres \
       --without-jasper \
       --without-jp2mrsid \
-      --without-jpeg \
       --without-kakadu \
       --without-libgrass \
       --without-libkml \

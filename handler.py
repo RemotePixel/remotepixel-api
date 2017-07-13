@@ -56,7 +56,8 @@ def l8_overview_handler(event, context):
 
         out = l8_ovr.create(scene, bands, img_format)
         return response('OK', 'text/plain', out, True)
-    except:
+    except Exception as e:
+        logger.error(e)
         return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
 
 
@@ -77,7 +78,8 @@ def l8_full_handler(event, context):
         return response('OK',
             'application/json',
             json.dumps({ 'path': f'https://s3-us-west-2.amazonaws.com/{os.environ.get("OUTPUT_BUCKET")}/data/landsat/{scene}_B{str_band}.tif'}), True)
-    except:
+    except Exception as e:
+        logger.error(e)
         return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
 
 
@@ -94,7 +96,8 @@ def l8_ndvi_point_handler(event, context):
 
         out = l8_ndvi.point(scene, coords)
         return response('OK', 'application/json', json.dumps(out), True)
-    except:
+    except Exception as e:
+        logger.error(e)
         return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
 
 
@@ -111,7 +114,8 @@ def l8_ndvi_area_handler(event, context):
 
         out = l8_ndvi.area(scene, bbox)
         return response('OK', 'text/plain', out, True)
-    except:
+    except Exception as e:
+        logger.error(e)
         return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
 
 
@@ -141,7 +145,8 @@ def l8_mosaic_handler(event, context):
             'json': f'data/mosaic/{task_id}.json'
         }
         return response('OK', 'application/json', json.dumps(resp), True)
-    except:
+    except Exception as e:
+        logger.error(e)
         return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error while creating the mosaic'}), True)
 
 
@@ -168,7 +173,8 @@ def srtm_mosaic_handler(event, context):
             'tif': f'data/srtm/{task_id}_mosaic.tif'
         }
         return response('OK', 'application/json', json.dumps(resp), True)
-    except:
+    except Exception as e:
+        logger.error(e)
         return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error while creating the mosaic'}), True)
 
 
@@ -186,5 +192,6 @@ def s2_overview_handler(event, context):
 
         out = s2_ovr.create(scene, bands, img_format)
         return response('OK', 'text/plain', out, True)
-    except:
+    except Exception as e:
+        logger.error(e)
         return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
