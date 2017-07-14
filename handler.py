@@ -34,7 +34,7 @@ def response(status, content_type, response_body, cors=False):
 
     if cors:
         messageData['headers']['Access-Control-Allow-Origin'] = '*'
-        messageData['headers']['Access-Control-Allow-Methods'] = 'GET,POST'
+        messageData['headers']['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
 
     if content_type in ['image/png', 'image/jpeg']:
         messageData['isBase64Encoded'] = True
@@ -58,7 +58,7 @@ def l8_overview_handler(event, context):
         return response('OK', 'text/plain', out, True)
     except Exception as e:
         logger.error(e)
-        return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
+        return response('ERROR', 'application/json', json.dumps({'message': 'Error'}), True)
 
 
 def l8_full_handler(event, context):
@@ -80,7 +80,7 @@ def l8_full_handler(event, context):
             json.dumps({ 'path': f'https://s3-us-west-2.amazonaws.com/{os.environ.get("OUTPUT_BUCKET")}/data/landsat/{scene}_B{str_band}.tif'}), True)
     except Exception as e:
         logger.error(e)
-        return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
+        return response('ERROR', 'application/json', json.dumps({'message': 'Error'}), True)
 
 
 def l8_ndvi_point_handler(event, context):
@@ -95,10 +95,11 @@ def l8_ndvi_point_handler(event, context):
         coords = eval(coords) if isinstance(coords, str) else coords
 
         out = l8_ndvi.point(scene, coords)
+
         return response('OK', 'application/json', json.dumps(out), True)
     except Exception as e:
         logger.error(e)
-        return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
+        return response('ERROR', 'application/json', json.dumps({'message': 'Error'}), True)
 
 
 def l8_ndvi_area_handler(event, context):
@@ -116,7 +117,7 @@ def l8_ndvi_area_handler(event, context):
         return response('OK', 'text/plain', out, True)
     except Exception as e:
         logger.error(e)
-        return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
+        return response('ERROR', 'application/json', json.dumps({'message': 'Error'}), True)
 
 
 def l8_mosaic_handler(event, context):
@@ -147,7 +148,7 @@ def l8_mosaic_handler(event, context):
         return response('OK', 'application/json', json.dumps(resp), True)
     except Exception as e:
         logger.error(e)
-        return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error while creating the mosaic'}), True)
+        return response('ERROR', 'application/json', json.dumps({'message': 'Error while creating the mosaic'}), True)
 
 
 def srtm_mosaic_handler(event, context):
@@ -162,7 +163,7 @@ def srtm_mosaic_handler(event, context):
         task_id = info.get('uuid', str(uuid.uuid1()))
 
         if len(tiles) > 8:
-            return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Tiles number > 8'}), True)
+            return response('ERROR', 'application/json', json.dumps({'message': 'Tiles number > 8'}), True)
 
         out = srtm_mosaic.create(tiles, task_id, os.environ.get('OUTPUT_BUCKET'))
 
@@ -175,7 +176,7 @@ def srtm_mosaic_handler(event, context):
         return response('OK', 'application/json', json.dumps(resp), True)
     except Exception as e:
         logger.error(e)
-        return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error while creating the mosaic'}), True)
+        return response('ERROR', 'application/json', json.dumps({'message': 'Error while creating the mosaic'}), True)
 
 
 def s2_overview_handler(event, context):
@@ -194,4 +195,4 @@ def s2_overview_handler(event, context):
         return response('OK', 'text/plain', out, True)
     except Exception as e:
         logger.error(e)
-        return response('ERROR', 'application/json', json.dumps({'ErrorMessage': 'Error'}), True)
+        return response('ERROR', 'application/json', json.dumps({'message': 'Error'}), True)
