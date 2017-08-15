@@ -47,7 +47,7 @@ def point(scene, coord):
     out = {
         'ndvi': ratio,
         'date': scene_params['date'],
-        'cloud': float(utils.landsat_mtl_extract(meta_data, 'CLOUD_COVER'))
+        'cloud': utils.landsat_mtl_extract(meta_data, 'CLOUD_COVER')
     }
 
     return out

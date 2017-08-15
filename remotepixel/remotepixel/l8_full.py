@@ -1,6 +1,5 @@
 import os
 import json
-import concurrent
 
 import boto3
 import numpy as np
@@ -13,10 +12,6 @@ from remotepixel import utils
 
 ##############################################################
 def create(scene, bucket, bands=[4,3,2]):
-
-    def worker(window, address):
-        with rio.open(address) as src:
-            return src.read(window=window, boundless=True, indexes=1)
 
     scene_params = utils.landsat_parse_scene_id(scene)
     meta_data = utils.landsat_get_mtl(scene)
@@ -41,15 +36,11 @@ def create(scene, bucket, bands=[4,3,2]):
                 MR = float(utils.landsat_mtl_extract(meta_data, f'REFLECTANCE_MULT_BAND_{bands[b]}'))
                 AR = float(utils.landsat_mtl_extract(meta_data, f'REFLECTANCE_ADD_BAND_{bands[b]}'))
 
-                with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-                    future_to_window = {
-                        executor.submit(worker, window, band_address): window
-                            for window in wind}
-
-                    for future in concurrent.futures.as_completed(future_to_window):
-                        window = future_to_window[future]
-                        result = reflectance.reflectance(future.result(), MR, AR, E, src_nodata=0) * 10000
-                        dataset.write(result.astype(np.uint16), indexes=b+1, window=window)
+                with rio.open(band_address) as src:
+                    for window in wind:
+                        matrix = src.read(window=window, boundless=True, indexes=1)
+                        result = reflectance.reflectance(matrix, MR, AR, E, src_nodata=0) * 10000
+                        dataset.write(result.astype(np.uint16), window=window, indexes=b+1)
 
         client = boto3.client('s3')
         str_band = ''.join(map(str, bands))
