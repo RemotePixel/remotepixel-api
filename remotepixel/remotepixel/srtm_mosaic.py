@@ -14,23 +14,23 @@ from urllib.request import urlopen
 
 srtm_site = 'https://s3.amazonaws.com/elevation-tiles-prod/skadi'
 
+def worker(tile):
+    """
+    """
+
+    try:
+        outpath = f'/tmp/{tile}.hgt'
+        url = f'{srtm_site}/{tile[0:3]}/{tile}.hgt.gz'
+        with open(outpath, 'wb') as f:
+            f.write(zlib.decompress(urlopen(url).read(), zlib.MAX_WBITS|16))
+        return outpath
+    except:
+        return None
+
+
 def create(tiles, uuid, bucket):
-    '''
-    '''
-
-    def worker(tile):
-        '''
-        '''
-
-        try:
-            outpath = f'/tmp/{tile}.hgt'
-            url = f'{srtm_site}/{tile[0:3]}/{tile}.hgt.gz'
-            with open(outpath, 'wb') as f:
-                f.write(zlib.decompress(urlopen(url).read(), zlib.MAX_WBITS|16))
-            return outpath
-        except:
-            return None
-
+    """
+    """
 
     if len(tiles) > 8:
         return False

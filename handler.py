@@ -54,7 +54,12 @@ def l8_overview_handler(event, context):
         bands = eval(bands) if isinstance(bands, str) else bands
         img_format = info.get('format', 'jpeg')
 
-        out = l8_ovr.create(scene, bands, img_format)
+        ndvi = info.get('ndvi', None)
+        if ndvi:
+            out = l8_ovr.create_ndvi(scene, img_format)
+        else:
+            out = l8_ovr.create(scene, bands, img_format)
+
         return response('OK', 'text/plain', out, True)
     except Exception as e:
         logger.error(e)
@@ -66,18 +71,27 @@ def l8_full_handler(event, context):
     '''
     logger.info(event)
 
+    bucket = os.environ.get("OUTPUT_BUCKET")
+
     try:
         info = event.get('queryStringParameters')
         scene = info.get('scene')
         bands = info.get('bands', [4,3,2])
         bands = eval(bands) if isinstance(bands, str) else bands
 
-        out = l8_full.create(scene, os.environ.get('OUTPUT_BUCKET'), bands)
+        ndvi = info.get('ndvi', None)
+        if ndvi:
+            out = l8_full.create_ndvi(scene, bucket)
+            outfname = f'{scene}_NDVI.tif'
+        else:
+            out = l8_full.create(scene, bucket, bands)
+            str_band = ''.join(map(str, bands))
+            outfname = f'{scene}_B{str_band}.tif'
 
-        str_band = ''.join(map(str, bands))
         return response('OK',
             'application/json',
-            json.dumps({ 'path': f'https://s3-us-west-2.amazonaws.com/{os.environ.get("OUTPUT_BUCKET")}/data/landsat/{scene}_B{str_band}.tif'}), True)
+            json.dumps({'path': f'https://s3-us-west-2.amazonaws.com/{bucket}/data/landsat/{outfname}'}), True)
+
     except Exception as e:
         logger.error(e)
         return response('ERROR', 'application/json', json.dumps({'message': 'Error'}), True)
@@ -191,7 +205,12 @@ def s2_overview_handler(event, context):
         bands = bands.split(',') if isinstance(bands, str) else bands
         img_format = info.get('format', 'jpeg')
 
-        out = s2_ovr.create(scene, bands, img_format)
+        ndvi = info.get('ndvi', None)
+        if ndvi:
+            out = s2_ovr.create_ndvi(scene, img_format)
+        else:
+            out = s2_ovr.create(scene, bands, img_format)
+
         return response('OK', 'text/plain', out, True)
     except Exception as e:
         logger.error(e)

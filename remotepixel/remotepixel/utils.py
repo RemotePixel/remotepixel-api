@@ -7,11 +7,35 @@ from urllib.request import urlopen
 
 import numpy as np
 
+import rasterio as rio
+from rasterio.enums import Resampling
+
+def get_colormap():
+    """
+    """
+    cmap_file = os.path.join(os.path.dirname(__file__), 'cmap.txt')
+    with open(cmap_file) as cmap:
+        lines = cmap.read().splitlines()
+        colormap = [list(map(int, line.split()))
+            for line in lines if not line.startswith('#')][1:]
+
+    return colormap
+
+
+def get_overview(address, ovrSize):
+    """
+    """
+    with rio.open(address) as src:
+        matrix = src.read(indexes=1,
+            out_shape=(ovrSize, ovrSize),
+            resampling=Resampling.bilinear).astype(src.profile['dtype'])
+
+    return matrix
 
 def linear_rescale(image, in_range=[0,16000], out_range=[1,255]):
-    '''
+    """
     Linear rescaling
-    '''
+    """
 
     imin, imax = in_range
     omin, omax = out_range
@@ -22,9 +46,9 @@ def linear_rescale(image, in_range=[0,16000], out_range=[1,255]):
 
 
 def landsat_get_mtl(sceneid):
-    '''
+    """
     Get Landsat MTL metadata
-    '''
+    """
 
     try:
         scene_params = landsat_parse_scene_id(sceneid)
@@ -35,9 +59,9 @@ def landsat_get_mtl(sceneid):
 
 
 def landsat_mtl_extract(meta, param):
-    '''
+    """
     Extracting MTL info
-    '''
+    """
 
     for line in meta:
         data = line.split(' = ')
@@ -48,11 +72,11 @@ def landsat_mtl_extract(meta, param):
 
 
 def landsat_parse_scene_id(sceneid):
-    '''
+    """
     Author @perrygeo - http://www.perrygeo.com
 
     parse scene id
-    '''
+    """
 
     if not re.match('^(L[COTEM]8\d{6}\d{7}[A-Z]{3}\d{2})|(L[COTEM]08_L\d{1}[A-Z]{2}_\d{6}_\d{8}_\d{8}_\d{2}_(T1|T2|RT))$', sceneid):
         raise ValueError(f'Could not match {sceneid}')
@@ -127,9 +151,9 @@ def landsat_parse_scene_id(sceneid):
 
 
 def sentinel_parse_scene_id(sceneid):
-    '''
+    """
     parse scene id
-    '''
+    """
 
     if not re.match('^S2[AB]_tile_[0-9]{8}_[0-9]{2}[A-Z]{3}_[0-9]$', sceneid):
         raise ValueError(f'Could not match {sceneid}')

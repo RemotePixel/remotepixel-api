@@ -36,7 +36,9 @@ band_info = {
 
 
 def create(scene, bucket, bands=['04','03','02']):
-
+    """
+    """
+    
     scene_params = utils.sentinel_parse_scene_id(scene)
     sentinel_address = f's3://sentinel-s2-l1c/{scene_params["key"]}'
 
