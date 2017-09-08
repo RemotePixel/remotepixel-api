@@ -7,6 +7,15 @@ from urllib.request import urlopen
 
 import numpy as np
 
+def getColorMap():
+    cmap_file = os.path.join(os.path.dirname(__file__), 'cmap.txt')
+    with open(cmap_file) as cmap:
+        lines = cmap.read().splitlines()
+        colormap = [list(map(int, line.split()))
+            for line in lines if not line.startswith('#')][1:]
+
+    return colormap
+
 
 def linear_rescale(image, in_range=[0,16000], out_range=[1,255]):
     '''

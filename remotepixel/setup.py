@@ -32,6 +32,7 @@ setup(name='remotepixel',
     include_package_data=True,
     zip_safe=False,
     python_requires='~=3.6',
+    package_data={'remotepixel': ['cmap.txt']},
     install_requires=read('requirements.txt').splitlines(),
     extras_require={
         'test': ['pytest', 'pytest-cov', 'codecov'],

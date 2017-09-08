@@ -11,6 +11,9 @@ from rasterio.enums import Resampling
 
 from remotepixel import utils
 
+np.seterr(divide='ignore', invalid='ignore')
+
+sentinel_bucket = 's3://sentinel-s2-l1c'
 
 # https://en.wikipedia.org/wiki/Sentinel-2
 band_info = {
@@ -30,29 +33,35 @@ band_info = {
 }
 
 
+def worker(args):
+    """
+    """
+    address, ovrSize = args
+
+    with rio.open(address) as src:
+        matrix = src.read(indexes=1,
+            out_shape=(ovrSize, ovrSize),
+            resampling=Resampling.bilinear).astype(src.profile['dtype'])
+
+        imgRange = np.percentile(matrix[matrix > 0], (2, 98)).tolist()
+        matrix = np.where(matrix > 0,
+            utils.linear_rescale(matrix,
+            in_range=imgRange, out_range=[1, 255]), 0).astype(np.uint8)
+
+        return matrix
+
+
 def create(scene, bands=['04','03','02'], img_format='jpeg', ovrSize=512):
-
-    def worker(address):
-
-        with rio.open(address) as src:
-            matrix = src.read(indexes=1,
-                out_shape=(ovrSize, ovrSize),
-                resampling=Resampling.bilinear).astype(src.profile['dtype'])
-
-            p2, p98 = np.percentile(matrix[matrix > 0], (2, 98))
-            return np.where(matrix > 0,
-                utils.linear_rescale(matrix,
-                    in_range=[int(p2), int(p98)], out_range=[1, 255]), 0)
-
+    """
+    """
 
     if img_format not in ['png', 'jpeg']:
         raise UserWarning(f'Invalid {img_format} extension')
 
     scene_params = utils.sentinel_parse_scene_id(scene)
-    sentinel_address = f's3://sentinel-s2-l1c/{scene_params["key"]}'
+    sentinel_address = f'{sentinel_bucket}/{scene_params["key"]}'
 
-
-    args = (f'{sentinel_address}/B{band}.jp2' for band in bands)
+    args = ((f'{sentinel_address}/B{band}.jp2', ovrSize) for band in bands)
 
     out = np.zeros((4, ovrSize, ovrSize), dtype=np.uint8)
     with futures.ThreadPoolExecutor(max_workers=3) as executor:
@@ -63,6 +72,44 @@ def create(scene, bands=['04','03','02'], img_format='jpeg', ovrSize=512):
     img = Image.fromarray(np.dstack(out))
     sio = BytesIO()
 
+    if img_format == 'jpeg':
+        img = img.convert('RGB')
+        img.save(sio, 'jpeg', subsampling=0, quality=100)
+    else:
+        img.save(sio, 'png', compress_level=0)
+
+    sio.seek(0)
+
+    return base64.b64encode(sio.getvalue()).decode()
+
+
+def create_ndvi(scene, img_format='jpeg', ovrSize=512):
+    """
+    """
+
+    if img_format not in ['png', 'jpeg']:
+        raise UserWarning(f'Invalid {img_format} extension')
+
+    scene_params = utils.sentinel_parse_scene_id(scene)
+    sentinel_address = f'{sentinel_bucket}/{scene_params["key"]}'
+
+    bands = ['08','04']
+    args = ((f'{sentinel_address}/B{band}.jp2', ovrSize) for band in bands)
+
+    with futures.ThreadPoolExecutor(max_workers=3) as executor:
+        out = list(executor.map(worker, args))
+
+    ratio = np.where((out[1] * out[0]) > 0,
+        np.nan_to_num((out[1] - out[0]) / (out[1] + out[0])), -1)
+    ratio = np.where(ratio > -1,
+        utils.linear_rescale(ratio, in_range=[-1,1],
+            out_range=[1, 255]), 0).astype(np.uint8)
+
+    cmap = list(np.array(utils.getColorMap()).flatten())
+    img = Image.fromarray(ratio, 'P')
+    img.putpalette(cmap)
+
+    sio = BytesIO()
     if img_format == 'jpeg':
         img = img.convert('RGB')
         img.save(sio, 'jpeg', subsampling=0, quality=100)

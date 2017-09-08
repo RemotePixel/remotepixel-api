@@ -29,7 +29,7 @@ provider:
 
   -  Effect: "Allow"
      Action:
-       - "s3:*"
+       - s3:GetObject
      Resource:
        - "arn:aws:s3:::sentinel-s2-l1c/*"
 

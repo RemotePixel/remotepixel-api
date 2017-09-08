@@ -9,25 +9,10 @@ import numpy as np
 
 from remotepixel import utils
 
-def BytesIO(x):
-    """Helper function for tests
-
-    x : str or bytes
-        if it's python 3 and we've got a string, encode it
-        otherwise, use io.BytesIO directly
-
-    Returns an io.BytesIO instance
-    """
-    if sys.version_info[0] >= 3 and isinstance(x, str):
-        return io.BytesIO(x.encode('utf-8'))
-    else:  # py2 or not a string
-        return io.BytesIO(x)
-
 
 mtl_file = os.path.join(os.path.dirname(__file__), 'fixtures', 'LC80140352017115LGN00_MTL.txt')
 with open(mtl_file, 'r') as f:
     meta_data = f.read().splitlines()
-
 
 def test_landsat_mtl_extract_valid():
     expectedContent = '37.08780'
