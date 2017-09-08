@@ -24,7 +24,17 @@ def test_worker_valid():
     Should work as expected (read data, proccess to TOA and rescale to int)
     """
 
-    args = (f'{landsat_path}_B4.TIF', 4, landsat_meta, 512)
+    args = (f'{landsat_path}_B4.TIF', 4, landsat_meta, 512, False)
+
+    assert l8_ovr.worker(args).shape == (512, 512)
+
+
+def test_worker_validNdvi():
+    """
+    Should work as expected (read data and proccess to TOA)
+    """
+
+    args = (f'{landsat_path}_B4.TIF', 4, landsat_meta, 512, True)
 
     assert l8_ovr.worker(args).shape == (512, 512)
 

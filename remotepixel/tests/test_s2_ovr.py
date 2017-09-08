@@ -21,7 +21,17 @@ def test_worker_valid():
 
     address = f'{sentinel_path}/B04.jp2'
 
-    assert s2_ovr.worker((address, 512)).shape == (512, 512)
+    assert s2_ovr.worker((address, 512, False)).shape == (512, 512)
+
+
+def test_worker_validNdvi():
+    """
+    Should work as expected (read data)
+    """
+
+    address = f'{sentinel_path}/B04.jp2'
+
+    assert s2_ovr.worker((address, 512, True)).shape == (512, 512)
 
 
 def test_create_valid(monkeypatch):

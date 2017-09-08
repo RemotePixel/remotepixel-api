@@ -124,3 +124,30 @@ def test_s2_parse_scene_id_2B_valid():
     }
 
     assert utils.sentinel_parse_scene_id(scene) == expectedContent
+
+
+def test_get_colormap_valid():
+    assert len(utils.get_colormap()) == 256
+
+
+def test_get_overview_validLandsat():
+
+    landsat_scene_c1 = 'LC08_L1TP_016037_20170813_20170814_01_RT'
+    landsat_bucket = os.path.join(os.path.dirname(__file__),
+        'fixtures', 'landsat-pds')
+    landsat_path = os.path.join(landsat_bucket,
+        'c1', 'L8', '016', '037', landsat_scene_c1, landsat_scene_c1)
+    address = f'{landsat_path}_B4.TIF'
+
+    assert utils.get_overview(address, 512).shape == (512, 512)
+
+def test_get_overview_validSentinel():
+
+    sentinel_scene = 'S2A_tile_20170729_19UDP_0'
+    sentinel_bucket = os.path.join(os.path.dirname(__file__),
+        'fixtures', 'sentinel-s2-l1c')
+    sentinel_path = os.path.join(sentinel_bucket, 'tiles/19/U/DP/2017/7/29/0/')
+
+    address = f'{sentinel_path}/B04.jp2'
+
+    assert utils.get_overview(address, 512).shape == (512, 512)

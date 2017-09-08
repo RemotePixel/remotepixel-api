@@ -80,7 +80,7 @@ def create_ndvi(scene, bucket):
         meta = src.meta
         wind = [w for ij, w in src.block_windows(1)]
 
-    meta.update(nodata=0, count=1, interleave='pixel',
+    meta.update(nodata=-1, count=1, interleave='pixel',
         tiled=False, compress=None, dtype=np.float32)
 
     E = float(utils.landsat_mtl_extract(meta_data, 'SUN_ELEVATION'))

@@ -36,19 +36,16 @@ band_info = {
 def worker(args):
     """
     """
-    address, ovrSize = args
+    address, ovrSize, ndvi = args
 
-    with rio.open(address) as src:
-        matrix = src.read(indexes=1,
-            out_shape=(ovrSize, ovrSize),
-            resampling=Resampling.bilinear).astype(src.profile['dtype'])
-
+    matrix = utils.get_overview(address, ovrSize)
+    if not ndvi:
         imgRange = np.percentile(matrix[matrix > 0], (2, 98)).tolist()
         matrix = np.where(matrix > 0,
             utils.linear_rescale(matrix,
             in_range=imgRange, out_range=[1, 255]), 0).astype(np.uint8)
 
-        return matrix
+    return matrix
 
 
 def create(scene, bands=['04','03','02'], img_format='jpeg', ovrSize=512):
@@ -61,7 +58,7 @@ def create(scene, bands=['04','03','02'], img_format='jpeg', ovrSize=512):
     scene_params = utils.sentinel_parse_scene_id(scene)
     sentinel_address = f'{sentinel_bucket}/{scene_params["key"]}'
 
-    args = ((f'{sentinel_address}/B{band}.jp2', ovrSize) for band in bands)
+    args = ((f'{sentinel_address}/B{band}.jp2', ovrSize, False) for band in bands)
 
     out = np.zeros((4, ovrSize, ovrSize), dtype=np.uint8)
     with futures.ThreadPoolExecutor(max_workers=3) as executor:
@@ -94,7 +91,7 @@ def create_ndvi(scene, img_format='jpeg', ovrSize=512):
     sentinel_address = f'{sentinel_bucket}/{scene_params["key"]}'
 
     bands = ['08','04']
-    args = ((f'{sentinel_address}/B{band}.jp2', ovrSize) for band in bands)
+    args = ((f'{sentinel_address}/B{band}.jp2', ovrSize, True) for band in bands)
 
     with futures.ThreadPoolExecutor(max_workers=3) as executor:
         out = list(executor.map(worker, args))
@@ -105,7 +102,7 @@ def create_ndvi(scene, img_format='jpeg', ovrSize=512):
         utils.linear_rescale(ratio, in_range=[-1,1],
             out_range=[1, 255]), 0).astype(np.uint8)
 
-    cmap = list(np.array(utils.getColorMap()).flatten())
+    cmap = list(np.array(utils.get_colormap()).flatten())
     img = Image.fromarray(ratio, 'P')
     img.putpalette(cmap)
 

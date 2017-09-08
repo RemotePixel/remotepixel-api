@@ -107,7 +107,7 @@ def area(scene, bbox):
         utils.linear_rescale(ratio, in_range=[-1,1],
             out_range=[1, 255]), 0).astype(np.uint8)
 
-    cmap = list(np.array(utils.getColorMap()).flatten())
+    cmap = list(np.array(utils.get_colormap()).flatten())
     img = Image.fromarray(ratio, 'P')
     img.putpalette(cmap)
     img = img.convert('RGB')
