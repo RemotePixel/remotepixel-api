@@ -56,6 +56,8 @@ Create Landsat 8 overview rgb.
 input:
 - **scene**: Landsat scene id
 - **bands**: array of band number (default: `[4,3,2]`) [OPTION]
+or
+- **ndvi**: boolean
 - **format**: image format (`jpeg` or `png`) [OPTION]
 
 return:
@@ -69,6 +71,12 @@ $ curl "https://{API}.execute-api.us-west-2.amazonaws.com/production/l8_overview
 /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA....
 ```
 
+```bash
+$ curl "https://{API}.execute-api.us-west-2.amazonaws.com/production/l8_overview?scene=LC08_L1TP_013030_20170520_20170520_01_RT&ndvi=true"
+
+/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA....
+```
+
 ## l8_full
 
 Create Landsat 8 full resolution rgb and save it to a S3 bucket.
@@ -76,6 +84,8 @@ Create Landsat 8 full resolution rgb and save it to a S3 bucket.
 input:
 - **scene**: Landsat scene id
 - **bands**: array of band number (default: `[4,3,2]`) [OPTION]
+or
+- **ndvi**: boolean
 
 return:
 - JSON object with AWS S3 path of the file
@@ -181,6 +191,8 @@ Create Sentinel 2 overview rgb.
 input:
 - **scene**: Sentinel scene id
 - **bands**: array of band number (default: `[4,3,2]`) [OPTION]
+or
+- **ndvi**: boolean
 - **format**: image format (`jpeg` or `png`) [OPTION]
 
 return:
