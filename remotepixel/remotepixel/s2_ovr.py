@@ -98,6 +98,7 @@ def create_ndvi(scene, img_format='jpeg', ovrSize=512):
 
     ratio = np.where((out[1] * out[0]) > 0,
         np.nan_to_num((out[1] - out[0]) / (out[1] + out[0])), -1)
+
     ratio = np.where(ratio > -1,
         utils.linear_rescale(ratio, in_range=[-1,1],
             out_range=[1, 255]), 0).astype(np.uint8)

@@ -99,7 +99,6 @@ def create_ndvi(scene, img_format='jpeg', ovrSize=512):
     cmap = list(np.array(utils.get_colormap()).flatten())
     img = Image.fromarray(ratio, 'P')
     img.putpalette(cmap)
-    img = img.convert('RGB')
 
     sio = BytesIO()
     if img_format == 'jpeg':
