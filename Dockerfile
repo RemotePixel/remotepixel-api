@@ -1,8 +1,6 @@
 FROM remotepixel/amazonlinux-gdal:latest
 
-COPY remotepixel remotepixel
-RUN pip3 wheel -w /tmp/wheelhouse -e remotepixel  --no-deps
-RUN pip3 install /tmp/wheelhouse/remotepixel-1.0.0-py3-none-any.whl --no-binary numpy,rasterio -t /tmp/vendored
+RUN pip3 install remotepixel --no-binary numpy,rasterio -t /tmp/vendored
 
 COPY handler.py /tmp/vendored/handler.py
 

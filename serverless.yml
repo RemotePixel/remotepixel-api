@@ -9,16 +9,15 @@ provider:
 
   environment:
     PYTHONPATH: /var/task/vendored
+    GDAL_DATA: /var/task/share/gdal # Needed if build gdal from source
     GDAL_CACHEMAX: 75%
     GDAL_TIFF_OVR_BLOCKSIZE: 512
     VSI_CACHE: TRUE
-    VSI_CACHE_SIZE: 40000000
-    GDAL_DISABLE_READDIR_ON_OPEN: true
-    CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".TIF,.ovr,.jp2"
+    VSI_CACHE_SIZE: 536870912
+    GDAL_DISABLE_READDIR_ON_OPEN: TRUE
+    CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".TIF,.ovr,.jp2,.hgt"
 
     OUTPUT_BUCKET: remotepixel-${opt:region}
-
-    GDAL_DATA: /var/task/share/gdal # Needed if build gdal from source
 
   iamRoleStatements:
   -  Effect: "Allow"

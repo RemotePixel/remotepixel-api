@@ -1,6 +1,0 @@
-numpy
-Pillow
-mercantile
-cachetools
-rasterio[s3]==1.0a9
-rio-toa
