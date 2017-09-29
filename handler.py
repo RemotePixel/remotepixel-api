@@ -55,7 +55,7 @@ def l8_overview_handler(event, context):
         info = event.get('queryStringParameters')
         scene = info.get('scene')
         bands = info.get('bands', [4, 3, 2])
-        bands = map(int, bands.split(',')) if isinstance(bands, str) else bands
+        bands = eval(bands) if isinstance(bands, str) else bands
         img_format = info.get('format', 'jpeg')
 
         if info.get('ndvi'):
@@ -81,7 +81,7 @@ def l8_full_handler(event, context):
         info = event.get('queryStringParameters')
         scene = info.get('scene')
         bands = info.get('bands', [4, 3, 2])
-        bands = map(int, bands.split(',')) if isinstance(bands, str) else bands
+        bands = eval(bands) if isinstance(bands, str) else bands
 
         if info.get('ndvi'):
             l8_full.create_ndvi(scene, bucket)
@@ -148,7 +148,7 @@ def l8_mosaic_handler(event, context):
         scenes = info.get('scenes')
         scenes = scenes.split(',') if isinstance(scenes, str) else scenes
         bands = info.get('bands', [4, 3, 2])
-        bands = map(int, bands.split(',')) if isinstance(bands, str) else bands
+        bands = eval(bands) if isinstance(bands, str) else bands
         task_id = info.get('uuid', str(uuid.uuid1()))
 
         l8_mosaic.create(scenes, task_id, os.environ.get('OUTPUT_BUCKET'), bands)
