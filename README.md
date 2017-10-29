@@ -30,7 +30,7 @@ Same for `deploymentBucket` ([here](https://github.com/RemotePixel/remotepixel-a
 ```
 make build && make package
 
-npm install -g serverless
+npm install
 
 make deploy-us && make deploy-eu
 ```
