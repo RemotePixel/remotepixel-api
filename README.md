@@ -28,11 +28,12 @@ You need to update `OUTPUT BUCKET` value in https://github.com/RemotePixel/remot
 Same for `deploymentBucket` ([here](https://github.com/RemotePixel/remotepixel-api/blob/34ffff88f0c6ac5073401443dda0357ffb274370/serverless.yml#L42))
 
 ```
-make build && make package
+make all
 
 npm install
 
-make deploy-us && make deploy-eu
+sls deploy --region us-west-2 --mail {your-email}
+sls deploy --region eu-central-1 --mail {your-email}
 ```
 
 #### Why us & eu ?
