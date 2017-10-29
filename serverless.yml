@@ -3,13 +3,11 @@ service: remotepixel-api
 provider:
   name: aws
   runtime: python3.6
-  stage: production
+  stage: ${opt:stage, 'production'}
 
   region: ${opt:region} #us-west-2  or eu-central-1
 
   environment:
-    PYTHONPATH: /var/task/vendored
-    GDAL_DATA: /var/task/share/gdal # Needed if build gdal from source
     GDAL_CACHEMAX: 75%
     GDAL_TIFF_OVR_BLOCKSIZE: 512
     VSI_CACHE: TRUE
@@ -40,6 +38,24 @@ provider:
 
   deploymentBucket: remotepixel-${opt:region} #Optional Bucket where you store your lambda package
 
+custom:
+  alerts:
+    dashboards: true
+    topics:
+      alarm:
+        topic: ${self:service}-${self:provider.stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: ${opt:mail}
+    definitions:
+      functionInvocations:
+        threshold: 1000
+      functionErrors:
+        threshold: 10
+
+plugins:
+  - serverless-plugin-aws-alerts
+
 package:
   artifact: package.zip
 
@@ -56,6 +72,10 @@ functions:
 
   l8_full:
     handler: handler.l8_full_handler
+    alarms:
+      - functionInvocations
+      - functionErrors
+      - functionThrottles
     memorySize: 1536
     timeout: 45
     events:

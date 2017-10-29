@@ -14,8 +14,6 @@ run:
 		--env AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
 		--env AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
 		--env AWS_REGION=us-west-2 \
-		--env PYTHONPATH=/var/task/vendored \
-		--env GDAL_DATA=/var/task/share/gdal \
 		--env GDAL_CACHEMAX=75% \
 		--env GDAL_DISABLE_READDIR_ON_OPEN=TRUE \
 		--env GDAL_TIFF_OVR_BLOCKSIZE=512 \
@@ -43,8 +41,6 @@ shell:
 		--env AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
 		--env AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
 		--env AWS_REGION=us-west-2 \
-		--env PYTHONPATH=/var/task/vendored \
-		--env GDAL_DATA=/var/task/share/gdal \
 		--env GDAL_CACHEMAX=75% \
 		--env GDAL_DISABLE_READDIR_ON_OPEN=TRUE \
 		--env GDAL_TIFF_OVR_BLOCKSIZE=512 \
@@ -53,14 +49,6 @@ shell:
 		--rm \
 		-it \
 		remotepixel:latest /bin/bash
-
-
-deploy-us:
-	sls deploy --region us-west-2
-
-
-deploy-eu:
-	sls deploy --region eu-central-1
 
 
 clean:

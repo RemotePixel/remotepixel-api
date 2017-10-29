@@ -104,3 +104,4 @@ ENV/
 .serverless
 
 package.zip
+node_modules/
