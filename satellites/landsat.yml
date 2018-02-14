@@ -1,0 +1,69 @@
+region: us-west-2
+
+iam:
+  -  Effect: "Allow"
+     Action:
+       - "s3:GetObject"
+       - "s3:ListBucket"
+     Resource:
+       - "arn:aws:s3:::landsat-pds*"
+  -  Effect: "Allow"
+     Action:
+       - "s3:GetObject"
+       - "s3:PutObject"
+       - "s3:ListBucket"
+     Resource:
+       - "arn:aws:s3:::remotepixel-us-west-2*"
+
+env:
+  GDAL_CACHEMAX: 75%
+  GDAL_TIFF_OVR_BLOCKSIZE: 512
+  VSI_CACHE: TRUE
+  VSI_CACHE_SIZE: 536870912
+  GDAL_DISABLE_READDIR_ON_OPEN: TRUE
+  CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".TIF,.ovr"
+  OUTPUT_BUCKET: remotepixel-us-west-2
+
+functions:
+
+  search:
+    handler: app.landsat.search
+    memorySize: 512
+    timeout: 10
+    events:
+      - http:
+          integration: lambda
+          path: search
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "path" : "$input.params(''path'')", "row" : "$input.params(''row'')", "full" : "$input.params(''full'')" }'
+
+  overview:
+    handler: app.landsat.overview
+    memorySize: 1536
+    timeout: 10
+    events:
+      - http:
+          integration: lambda
+          path: overview
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')", "format" : "$input.params(''format'')" }'
+
+  full:
+    handler: app.landsat.full
+    memorySize: 3008
+    timeout: 30
+    events:
+      - http:
+          integration: lambda
+          path: full
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')" }'

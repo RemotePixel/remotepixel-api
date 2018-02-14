@@ -1,9 +1,7 @@
-# Use the official amazonlinux AMI image
 FROM amazonlinux:latest
 
 # Install apt dependencies
-RUN yum install -y \
-  gcc gcc-c++ freetype-devel yum-utils findutils openssl-devel
+RUN yum install -y gcc gcc-c++ freetype-devel yum-utils findutils openssl-devel
 
 RUN yum -y groupinstall development
 
@@ -17,10 +15,11 @@ RUN curl https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz | tar -xJ \
 
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
-RUN pip3 install numpy wheel cython --no-binary numpy
+RUN pip3 install numpy --no-binary numpy
 
 # Install Python dependencies
-RUN pip3 install remotepixel>=0.0.4 --no-binary numpy -t /tmp/vendored -U
+# RUN pip3 install remotepixel==1.0.0 aws-sat-api==0.0.4 --no-binary numpy -t /tmp/vendored -U
+RUN pip3 install git+https://github.com/RemotePixel/remotepixel-py.git@29f2c3c070679b4371379de9c40c2fb72cf3803c aws-sat-api==0.0.4 --no-binary numpy -t /tmp/vendored -U
 
 RUN du -sh /tmp/vendored
 
@@ -42,7 +41,7 @@ RUN find /tmp/vendored -type f -a -name '*.py' -print0 | xargs -0 rm -f
 
 RUN du -sh /tmp/vendored
 
-COPY handler.py /tmp/vendored/handler.py
+COPY app /tmp/vendored/app
 
 # Create archive
 RUN cd /tmp/vendored && zip -r9q /tmp/package.zip *
