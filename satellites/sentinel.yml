@@ -10,11 +10,9 @@ iam:
        - "arn:aws:s3:::sentinel-s1*"
   -  Effect: "Allow"
      Action:
-       - "s3:GetObject"
-       - "s3:PutObject"
-       - "s3:ListBucket"
+       - "s3:*"
      Resource:
-       - "arn:aws:s3:::remotepixel-eu-central-1*"
+       - "arn:aws:s3:::remotepixel-${self:provider.region}/*"
 
 env:
   GDAL_CACHEMAX: 75%
@@ -22,6 +20,7 @@ env:
   VSI_CACHE_SIZE: 536870912
   GDAL_DISABLE_READDIR_ON_OPEN: TRUE
   CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".jp2,.ovr"
+  OUTPUT_BUCKET: remotepixel-${self:provider.region}
 
 functions:
   search:
@@ -38,7 +37,6 @@ functions:
             template:
               application/json: '{ "utm" : "$input.params(''utm'')", "grid" : "$input.params(''grid'')", "lat" : "$input.params(''lat'')", "full" : "$input.params(''full'')", "level" : "$input.params(''level'')" }'
 
-
   overview:
     handler: app.sentinel.overview
     memorySize: 1536
@@ -53,16 +51,30 @@ functions:
             template:
               application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')", "format" : "$input.params(''format'')" }'
 
-  full:
-    handler: app.sentinel.full
-    memorySize: 3008
-    timeout: 30
+  ndvi:
+    handler: app.sentinel.ndvi
+    memorySize: 512
+    timeout: 20
     events:
       - http:
           integration: lambda
-          path: full
+          path: ndvi
           method: get
           cors: true
           request:
             template:
-              application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')" }'
+              application/json: '{ "scene" : "$input.params(''scene'')", "expression" : "$input.params(''expression'')", "lat" : "$input.params(''lat'')", "lon" : "$input.params(''lon'')" }'
+
+  # full:
+  #   handler: app.sentinel.full
+  #   memorySize: 3008
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         integration: lambda
+  #         path: full
+  #         method: get
+  #         cors: true
+  #         request:
+  #           template:
+  #             application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')" }'

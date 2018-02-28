@@ -6,7 +6,7 @@ import logging
 
 from aws_sat_api.search import sentinel2 as sentinel_search
 
-from remotepixel import s2_ovr  # ,s2_full
+from remotepixel import s2_ovr, s2_ndvi  # ,s2_full
 
 logger = logging.getLogger('remotepixel_api')
 logger.setLevel(logging.INFO)
@@ -43,6 +43,21 @@ def overview(event, context):
     return s2_ovr.create(scene, bands=bands, expression=expression, img_format=img_format)
 
 
+def ndvi(event, context):
+    """Handle ndvi requests
+    """
+    logger.info(event)
+
+    scene = event['scene']
+    lat = float(event['lat'])
+    lon = float(event['lon'])
+    expression = event.get('expression')
+    if not expression:
+        expression = '(b08 - b04) / (b08 + b04)'
+    res = s2_ndvi.point(scene, [lon, lat], expression)
+    res['ndvi'] = float('{0:.7f}'.format(res['ndvi']))
+    return res
+
 # def full(event, context):
 #     """Handle full requests
 #     """
@@ -56,9 +71,6 @@ def overview(event, context):
 #         bands = bands.split(',') if isinstance(bands, str) else bands
 #     expression = event.get('expression')
 #
-#     s2_full.create(scene, bucket, bands)
-#     str_band = ''.join(map(str, bands))
-#     outfname = f'{scene}_B{str_band}.tif'
-#
-#     out_url = f'https://s3-eu-central-1.amazonaws.com/{bucket}/data/landsat/{outfname}'
-#     return json.dumps({'path': out_url})
+#     out_key = s2_full.create(scene, bucket, bands)
+#     out_url = f'https://s3-eu-central-1.amazonaws.com/{bucket}/{out_key}'
+#     return {'scene': scene, 'path': out_url}

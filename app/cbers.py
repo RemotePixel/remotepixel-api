@@ -1,10 +1,9 @@
 """app.cbers: handle request for CBERS-tiler"""
 
 import os
-import uuid
 import logging
 
-from remotepixel import cbers_ovr, cbers_full
+from remotepixel import cbers_ovr, cbers_full, cbers_ndvi
 
 from aws_sat_api.search import cbers as cbers_search
 
@@ -39,6 +38,22 @@ def overview(event, context):
     return cbers_ovr.create(scene, bands=bands, expression=expression, img_format=img_format)
 
 
+def ndvi(event, context):
+    """Handle ndvi requests
+    """
+    logger.info(event)
+
+    scene = event['scene']
+    lat = float(event['lat'])
+    lon = float(event['lon'])
+    expression = event.get('expression')
+    if not expression:
+        expression = '(b8 - b7) / (b8 + b7)'
+    res = cbers_ndvi.point(scene, [lon, lat], expression)
+    res['ndvi'] = float('{0:.7f}'.format(res['ndvi']))
+    return res
+
+
 def full(event, context):
     """Handle full requests
     """
@@ -51,7 +66,6 @@ def full(event, context):
     if event.get('bands'):
         bands = bands.split(',') if isinstance(bands, str) else bands
 
-    output_uid = str(uuid.uuid1())
-    cbers_full.create(scene, bucket, bands=bands, expression=expression, output_uid=output_uid)
-    out_url = f'https://s3-us-east-1.amazonaws.com/{bucket}/data/cbers/{output_uid}.tif'
-    return {'scene': scene, 'uuid': output_uid, 'path': out_url}
+    out_key = cbers_full.create(scene, bucket, bands=bands, expression=expression)
+    out_url = f'https://s3.amazonaws.com/{bucket}/{out_key}'
+    return {'scene': scene, 'path': out_url}

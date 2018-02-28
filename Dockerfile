@@ -19,7 +19,7 @@ RUN pip3 install numpy --no-binary numpy
 
 # Install Python dependencies
 # RUN pip3 install remotepixel==1.0.0 aws-sat-api==0.0.4 --no-binary numpy -t /tmp/vendored -U
-RUN pip3 install git+https://github.com/RemotePixel/remotepixel-py.git@29f2c3c070679b4371379de9c40c2fb72cf3803c aws-sat-api==0.0.4 --no-binary numpy -t /tmp/vendored -U
+RUN pip3 install git+https://github.com/RemotePixel/remotepixel-py.git@d91fb3c2e50e8a58cb1778e4ec396eb1831d331d aws-sat-api==0.0.5 --no-binary numpy -t /tmp/vendored -U
 
 RUN du -sh /tmp/vendored
 

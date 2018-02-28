@@ -7,13 +7,12 @@ iam:
        - "s3:ListBucket"
      Resource:
        - "arn:aws:s3:::landsat-pds*"
+
   -  Effect: "Allow"
      Action:
-       - "s3:GetObject"
-       - "s3:PutObject"
-       - "s3:ListBucket"
+       - "s3:*"
      Resource:
-       - "arn:aws:s3:::remotepixel-us-west-2*"
+       - "arn:aws:s3:::remotepixel-${self:provider.region}/*"
 
 env:
   GDAL_CACHEMAX: 75%
@@ -22,13 +21,12 @@ env:
   VSI_CACHE_SIZE: 536870912
   GDAL_DISABLE_READDIR_ON_OPEN: TRUE
   CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".TIF,.ovr"
-  OUTPUT_BUCKET: remotepixel-us-west-2
+  OUTPUT_BUCKET: remotepixel-${self:provider.region}
 
 functions:
-
   search:
     handler: app.landsat.search
-    memorySize: 512
+    memorySize: 1536
     timeout: 10
     events:
       - http:
@@ -53,6 +51,20 @@ functions:
           request:
             template:
               application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')", "format" : "$input.params(''format'')" }'
+
+  ndvi:
+    handler: app.landsat.ndvi
+    memorySize: 512
+    timeout: 20
+    events:
+      - http:
+          integration: lambda
+          path: ndvi
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "scene" : "$input.params(''scene'')", "expression" : "$input.params(''expression'')", "lat" : "$input.params(''lat'')", "lon" : "$input.params(''lon'')" }'
 
   full:
     handler: app.landsat.full
