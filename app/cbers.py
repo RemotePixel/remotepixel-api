@@ -1,7 +1,9 @@
-"""app.cbers: handle request for CBERS-tiler"""
+"""app.cbers: handle request for CBERS"""
 
 import os
 import logging
+
+import boto3
 
 from remotepixel import cbers_ovr, cbers_full, cbers_ndvi
 
@@ -54,18 +56,53 @@ def ndvi(event, context):
     return res
 
 
+def ndvi_area(event, context):
+    """Handle ndvi requests
+    """
+    scene = event['scene']
+    bbox = event['bbox']
+    bbox = map(float, bbox.split(','))
+    if len(bbox) != 4:
+        raise Exception('BBOX must be a 4 values array')
+
+    expression = event.get('expression')
+    if not expression:
+        expression = '(b5 - b4) / (b5 + b4)'
+
+    return cbers_ndvi.area(scene, bbox, expression)
+
+
 def full(event, context):
     """Handle full requests
     """
     logger.info(event)
 
     bucket = os.environ["OUTPUT_BUCKET"]
-    scene = event.get('scene')
+    scene = event['scene']
     bands = event.get('bands')
     expression = event.get('expression')
     if event.get('bands'):
         bands = bands.split(',') if isinstance(bands, str) else bands
 
-    out_key = cbers_full.create(scene, bucket, bands=bands, expression=expression)
-    out_url = f'https://s3.amazonaws.com/{bucket}/{out_key}'
-    return {'scene': scene, 'path': out_url}
+    mem = cbers_full.create(scene, bands=bands, expression=expression)
+
+    params = {
+        'ACL': 'public-read',
+        'Metadata': {'scene': scene},
+        'ContentType': 'image/tiff'}
+
+    if expression:
+        params['Metadata']['expression'] = expression
+    else:
+        params['Metadata']['bands'] = ''.join(map(str, bands))
+
+    str_band = ''.join(map(str, bands))
+    prefix = 'Exp' if expression else 'RGB'
+    key = f'data/cbers/{scene}_{prefix}{str_band}.tif'
+
+    client = boto3.client('s3')
+    client.upload_fileobj(mem, bucket, key, ExtraArgs=params)
+
+    return {
+        'scene': scene,
+        'path': f'https://s3.amazonaws.com/{bucket}/{key}'}

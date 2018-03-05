@@ -1,12 +1,10 @@
-"""sentinel handler function"""
+"""app.sentinel: handle request for sentinel"""
 
-# import os
-# import json
 import logging
 
 from aws_sat_api.search import sentinel2 as sentinel_search
 
-from remotepixel import s2_ovr, s2_ndvi  # ,s2_full
+from remotepixel import s2_ovr, s2_ndvi
 
 logger = logging.getLogger('remotepixel_api')
 logger.setLevel(logging.INFO)
@@ -58,19 +56,18 @@ def ndvi(event, context):
     res['ndvi'] = float('{0:.7f}'.format(res['ndvi']))
     return res
 
-# def full(event, context):
-#     """Handle full requests
-#     """
-#     logger.info(event)
-#
-#     bucket = os.environ.get("OUTPUT_BUCKET")
-#
-#     scene = info.get('scene')
-#     if event.get('bands'):
-#         bands = event.get('bands')
-#         bands = bands.split(',') if isinstance(bands, str) else bands
-#     expression = event.get('expression')
-#
-#     out_key = s2_full.create(scene, bucket, bands)
-#     out_url = f'https://s3-eu-central-1.amazonaws.com/{bucket}/{out_key}'
-#     return {'scene': scene, 'path': out_url}
+
+def ndvi_area(event, context):
+    """Handle ndvi requests
+    """
+    scene = event['scene']
+    bbox = event['bbox']
+    bbox = list(map(float, bbox.split(',')))
+    if len(bbox) != 4:
+        raise Exception('BBOX must be a 4 values array')
+
+    expression = event.get('expression')
+    if not expression:
+        expression = '(b08 - b04) / (b08 + b04)'
+
+    return s2_ndvi.area(scene, bbox, expression)

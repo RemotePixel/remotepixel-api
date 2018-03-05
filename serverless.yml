@@ -1,16 +1,16 @@
-service: ${opt:sat}-service
+service: ${opt:service}-service
 
 provider:
   name: aws
   runtime: python3.6
   stage: ${opt:stage, 'production'}
-  region: ${file(./satellites/${opt:sat}.yml):region}
-  iamRoleStatements: ${file(./satellites/${opt:sat}.yml):iam}
-  environment: ${file(./satellites/${opt:sat}.yml):env}
+  region: ${file(./services/${opt:service}.yml):region}
+  iamRoleStatements: ${file(./services/${opt:service}.yml):iam}
+  environment: ${file(./services/${opt:service}.yml):env}
 
   deploymentBucket: remotepixel-${self:provider.region}
 
 package:
   artifact: package.zip
 
-functions: ${file(./satellites/${opt:sat}.yml):functions}
+functions: ${file(./services/${opt:service}.yml):functions}
