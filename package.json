@@ -3,12 +3,11 @@
     "version": "1.0.0",
     "description": "Create a highly customizable `serverless` tile server for Amazon's Landsat Public Dataset",
     "devDependencies": {
-        "serverless-plugin-aws-alerts": "^1.2.4",
         "serverless": "^1.23.0"
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/remotepixel/landsat-tiler.git"
+        "url": "git://github.com/remotepixel/remotepixel-api.git"
     },
     "author": "Vincent Sarago"
 }

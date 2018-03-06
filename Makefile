@@ -1,56 +1,18 @@
 
 SHELL = /bin/bash
 
-all: build package
-
-
 build:
-	docker build -f Dockerfile --tag remotepixel:latest .
-
-run:
-	docker run \
-		-w /var/task/ \
-		--name remotepixel \
-		--env AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
-		--env AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
-		--env AWS_REGION=us-west-2 \
-		--env GDAL_CACHEMAX=75% \
-		--env GDAL_DISABLE_READDIR_ON_OPEN=TRUE \
-		--env GDAL_TIFF_OVR_BLOCKSIZE=512 \
-		--env VSI_CACHE=TRUE \
-		--env VSI_CACHE_SIZE=20000000 \
-		-itd \
-		remotepixel:latest
-
-
-package:
-	docker run \
-		-w /var/task/ \
-		--name remotepixel \
-		-itd \
-		remotepixel:latest
-	docker cp remotepixel:/tmp/package.zip package.zip
-	docker stop remotepixel
-	docker rm remotepixel
-
-
-shell:
-	docker run \
-		--name remotepixel  \
-		--volume $(shell pwd)/:/data \
-		--env AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
-		--env AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
-		--env AWS_REGION=us-west-2 \
-		--env GDAL_CACHEMAX=75% \
-		--env GDAL_DISABLE_READDIR_ON_OPEN=TRUE \
-		--env GDAL_TIFF_OVR_BLOCKSIZE=512 \
-		--env VSI_CACHE=TRUE \
-		--env VSI_CACHE_SIZE=20000000 \
-		--rm \
-		-it \
-		remotepixel:latest /bin/bash
-
+	docker build --tag lambda:latest .
+	docker run --name lambda -itd lambda:latest
+	docker cp lambda:/tmp/package.zip package.zip
+	docker stop lambda
+	docker rm lambda
 
 clean:
-	docker stop remotepixel
-	docker rm remotepixel
+	docker stop lambda
+	docker rm lambda
+
+deploy:
+	sls deploy --stage production --service cbers
+	sls deploy --stage production --service landsat
+	sls deploy --stage production --service sentinel

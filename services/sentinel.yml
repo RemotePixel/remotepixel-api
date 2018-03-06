@@ -1,0 +1,94 @@
+region: eu-central-1
+
+iam:
+  -  Effect: "Allow"
+     Action:
+       - "s3:GetObject"
+       - "s3:ListBucket"
+     Resource:
+       - "arn:aws:s3:::sentinel-s2*"
+       - "arn:aws:s3:::sentinel-s1*"
+  -  Effect: "Allow"
+     Action:
+       - "s3:*"
+     Resource:
+       - "arn:aws:s3:::remotepixel-${self:provider.region}/*"
+
+env:
+  GDAL_CACHEMAX: 75%
+  VSI_CACHE: "TRUE"
+  VSI_CACHE_SIZE: 536870912
+  GDAL_DISABLE_READDIR_ON_OPEN: "YES"
+  CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".jp2,.ovr"
+  OUTPUT_BUCKET: remotepixel-${self:provider.region}
+
+functions:
+  search:
+    handler: app.sentinel.search
+    memorySize: 1536
+    timeout: 10
+    events:
+      - http:
+          integration: lambda
+          path: search
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "utm" : "$input.params(''utm'')", "grid" : "$input.params(''grid'')", "lat" : "$input.params(''lat'')", "full" : "$input.params(''full'')", "level" : "$input.params(''level'')" }'
+
+  overview:
+    handler: app.sentinel.overview
+    memorySize: 1536
+    timeout: 20
+    events:
+      - http:
+          integration: lambda
+          path: overview
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')", "format" : "$input.params(''format'')" }'
+
+  ndvi:
+    handler: app.sentinel.ndvi
+    memorySize: 512
+    timeout: 20
+    events:
+      - http:
+          integration: lambda
+          path: ndvi
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "scene" : "$input.params(''scene'')", "expression" : "$input.params(''expression'')", "lat" : "$input.params(''lat'')", "lon" : "$input.params(''lon'')" }'
+
+  ndvi_area:
+    handler: app.sentinel.ndvi_area
+    memorySize: 1536
+    timeout: 20
+    events:
+      - http:
+          integration: lambda
+          path: ndvi_area
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "scene" : "$input.params(''scene'')", "expression" : "$input.params(''expression'')", "bbox" : "$input.params(''bbox'')" }'
+
+  # full:
+  #   handler: app.sentinel.full
+  #   memorySize: 3008
+  #   timeout: 30
+  #   events:
+  #     - http:
+  #         integration: lambda
+  #         path: full
+  #         method: get
+  #         cors: true
+  #         request:
+  #           template:
+  #             application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')" }'
