@@ -13,6 +13,6 @@ clean:
 	docker rm lambda
 
 deploy:
-	sls deploy --sat cbers
-	sls deploy --sat landsat
-	sls deploy --sat sentinel
+	sls deploy --stage production --service cbers
+	sls deploy --stage production --service landsat
+	sls deploy --stage production --service sentinel
