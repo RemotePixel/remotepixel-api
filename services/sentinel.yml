@@ -20,6 +20,7 @@ env:
   VSI_CACHE_SIZE: 536870912
   GDAL_DISABLE_READDIR_ON_OPEN: "YES"
   CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".jp2,.ovr"
+  AWS_REQUEST_PAYER: "requester"
   OUTPUT_BUCKET: remotepixel-${self:provider.region}
 
 functions:
