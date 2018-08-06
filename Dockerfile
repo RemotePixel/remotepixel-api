@@ -1,25 +1,23 @@
-FROM amazonlinux:latest
+FROM lambdalinux/baseimage-amzn:2017.03-004
 
-# Install apt dependencies
-RUN yum install -y gcc gcc-c++ freetype-devel yum-utils findutils openssl-devel
+RUN yum update -y && yum upgrade -y
+RUN yum install -y python36-devel python36-pip
+RUN yum clean all
 
-RUN yum -y groupinstall development
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
-RUN curl https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tar.xz | tar -xJ \
-    && cd Python-3.6.1 \
-    && ./configure --prefix=/usr/local --enable-shared \
-    && make \
-    && make install \
-    && cd .. \
-    && rm -rf Python-3.6.1
+# install system libraries
+RUN yum makecache fast
+RUN yum install -y gcc gcc-c++ freetype-devel yum-utils findutils openssl-devel wget tar unzip zip bzip2 gzip
+RUN yum clean all
+
+RUN pip-3.6 install pip -U
 
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
-RUN pip3 install numpy --no-binary numpy
-
 # Install Python dependencies
-RUN pip3 install remotepixel==1.0.0 aws-sat-api==0.0.5 --no-binary numpy -t /tmp/vendored -U
-# RUN pip3 install git+https://github.com/RemotePixel/remotepixel-py.git@371be2470b658e1afca7aa6302fc3b42174df01d aws-sat-api==0.0.5 --no-binary numpy -t /tmp/vendored -U
+RUN pip3 install remotepixel==1.0.0 aws-sat-api==2.0.1 --no-binary numpy -t /tmp/vendored -U
 
 RUN du -sh /tmp/vendored
 
