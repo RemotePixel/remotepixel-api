@@ -1,4 +1,4 @@
-"""app.cbers: handle request for CBERS"""
+"""app.cbers: handle request for CBERS."""
 
 import os
 import logging
@@ -14,8 +14,7 @@ logger.setLevel(logging.INFO)
 
 
 def search(event, context):
-    """Handle search requests
-    """
+    """Handle search requests."""
     path = event['path']
     row = event['row']
     data = list(cbers_search(path, row))
@@ -27,24 +26,23 @@ def search(event, context):
 
 
 def overview(event, context):
-    """Handle overview requests
-    """
-    logger.info(event)
-
+    """Handle overview requests."""
     scene = event['scene']
     bands = event.get('bands', None)
     expression = event.get('expression')
     img_format = event.get('format', 'jpeg')
     if bands:
         bands = bands.split(',') if isinstance(bands, str) else bands
-    return cbers_ovr.create(scene, bands=bands, expression=expression, img_format=img_format)
+    return cbers_ovr.create(
+        scene,
+        bands=bands,
+        expression=expression,
+        img_format=img_format
+    )
 
 
 def ndvi(event, context):
-    """Handle ndvi requests
-    """
-    logger.info(event)
-
+    """Handle ndvi requests."""
     scene = event['scene']
     lat = float(event['lat'])
     lon = float(event['lon'])
@@ -57,8 +55,7 @@ def ndvi(event, context):
 
 
 def ndvi_area(event, context):
-    """Handle ndvi requests
-    """
+    """Handle ndvi requests."""
     scene = event['scene']
     bbox = event['bbox']
     bbox = map(float, bbox.split(','))
@@ -73,15 +70,12 @@ def ndvi_area(event, context):
 
 
 def full(event, context):
-    """Handle full requests
-    """
-    logger.info(event)
-
+    """Handle full requests."""
     bucket = os.environ["OUTPUT_BUCKET"]
     scene = event['scene']
     bands = event.get('bands')
     expression = event.get('expression')
-    if event.get('bands'):
+    if bands:
         bands = bands.split(',') if isinstance(bands, str) else bands
 
     mem = cbers_full.create(scene, bands=bands, expression=expression)

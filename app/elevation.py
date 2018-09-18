@@ -1,4 +1,4 @@
-"""app.elevation: handle requests"""
+"""app.elevation: handle SRTM requests."""
 
 import os
 import uuid
@@ -13,8 +13,7 @@ logger.setLevel(logging.INFO)
 
 
 def mosaic(event, context):
-    """handle mosaic requests
-    """
+    """Handle mosaic requests."""
     bucket = os.environ["OUTPUT_BUCKET"]
     tiles = event.get('scenes')
 
@@ -39,6 +38,7 @@ def mosaic(event, context):
 
 
 def wms(event, context):
+    """Create WMTS xml."""
     return '''<GDAL_WMS>
     <Service name="TMS">
         <ServerUrl>http://elevation-tiles-prod.s3.amazonaws.com/geotiff/${z}/${x}/${y}.tif</ServerUrl>

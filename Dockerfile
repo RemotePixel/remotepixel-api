@@ -17,7 +17,7 @@ RUN pip-3.6 install pip -U
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 # Install Python dependencies
-RUN pip3 install remotepixel==1.0.0 aws-sat-api==2.0.1 --no-binary numpy -t /tmp/vendored -U
+RUN pip3 install remotepixel==2.0.0 aws-sat-api~=2.0 requests --no-binary numpy -t /tmp/vendored -U
 
 RUN du -sh /tmp/vendored
 

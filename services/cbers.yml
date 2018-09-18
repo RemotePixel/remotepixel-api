@@ -16,29 +16,14 @@ iam:
 
 env:
   GDAL_CACHEMAX: 75%
-  GDAL_TIFF_OVR_BLOCKSIZE: 512
   VSI_CACHE: "TRUE"
   VSI_CACHE_SIZE: 536870912
-  GDAL_DISABLE_READDIR_ON_OPEN: "YES"
+  GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
   CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".TIF"
   AWS_REQUEST_PAYER: "requester"
   OUTPUT_BUCKET: remotepixel-${self:provider.region}
 
 functions:
-  search:
-    handler: app.cbers.search
-    memorySize: 512
-    timeout: 10
-    events:
-      - http:
-          integration: lambda
-          path: search
-          method: get
-          cors: true
-          request:
-            template:
-              application/json: '{ "path" : "$input.params(''path'')", "row" : "$input.params(''row'')", "full" : "$input.params(''full'')" }'
-
   overview:
     handler: app.cbers.overview
     memorySize: 1536

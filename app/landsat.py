@@ -1,4 +1,4 @@
-"""app.landsat: handle request for Landsat"""
+"""app.landsat: handle request for Landsat."""
 
 import os
 import json
@@ -16,8 +16,7 @@ logger.setLevel(logging.INFO)
 
 
 def search(event, context):
-    """Handle search requests
-    """
+    """Handle search requests."""
     path = event['path']
     row = event['row']
     full = event.get('full', True)
@@ -31,20 +30,23 @@ def search(event, context):
 
 
 def overview(event, context):
-    """Handle overview requests
-    """
+    """Handle overview requests."""
     scene = event['scene']
-    bands = event.get('bands', None)
+    bands = event.get('bands')
     expression = event.get('expression')
     img_format = event.get('format', 'jpeg')
     if bands:
         bands = bands.split(',') if isinstance(bands, str) else bands
-    return l8_ovr.create(scene, bands=bands, expression=expression, img_format=img_format)
+    return l8_ovr.create(
+        scene,
+        bands=bands,
+        expression=expression,
+        img_format=img_format
+    )
 
 
 def ndvi(event, context):
-    """Handle ndvi requests
-    """
+    """Handle ndvi requests."""
     scene = event['scene']
     lat = float(event['lat'])
     lon = float(event['lon'])
@@ -57,8 +59,7 @@ def ndvi(event, context):
 
 
 def ndvi_area(event, context):
-    """Handle ndvi requests
-    """
+    """Handle ndvi requests."""
     scene = event['scene']
     bbox = event['bbox']
     bbox = list(map(float, bbox.split(',')))
@@ -73,13 +74,12 @@ def ndvi_area(event, context):
 
 
 def mosaic(event, context):
-    """handle mosaic requests
-    """
+    """Handle mosaic requests."""
     bucket = os.environ["OUTPUT_BUCKET"]
     scenes = event.get('scenes')
     bands = event.get('bands')
     # expression = event.get('expression')
-    if event.get('bands'):
+    if bands:
         bands = bands.split(',') if isinstance(bands, str) else bands
 
     mem, bounds = l8_full.mosaic(scenes, bands=bands)
@@ -114,13 +114,12 @@ def mosaic(event, context):
 
 
 def full(event, context):
-    """Handle full requests
-    """
+    """Handle full requests."""
     bucket = os.environ["OUTPUT_BUCKET"]
     scene = event['scene']
     bands = event.get('bands')
     expression = event.get('expression')
-    if event.get('bands'):
+    if bands:
         bands = bands.split(',') if isinstance(bands, str) else bands
 
     mem = l8_full.create(scene, bands=bands, expression=expression)

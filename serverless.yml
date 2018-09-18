@@ -7,8 +7,11 @@ provider:
   region: ${file(./services/${opt:service}.yml):region}
   iamRoleStatements: ${file(./services/${opt:service}.yml):iam}
   environment: ${file(./services/${opt:service}.yml):env}
-
   deploymentBucket: remotepixel-${self:provider.region}
+  usagePlan:
+    throttle:
+      burstLimit: 200
+      rateLimit: 100
 
 package:
   artifact: package.zip

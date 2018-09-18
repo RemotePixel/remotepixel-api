@@ -18,15 +18,15 @@ env:
   GDAL_CACHEMAX: 75%
   VSI_CACHE: "TRUE"
   VSI_CACHE_SIZE: 536870912
-  GDAL_DISABLE_READDIR_ON_OPEN: "YES"
-  CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".jp2,.ovr"
+  GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
+  CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".jp2"
   AWS_REQUEST_PAYER: "requester"
   OUTPUT_BUCKET: remotepixel-${self:provider.region}
 
 functions:
   search:
     handler: app.sentinel.search
-    memorySize: 1536
+    memorySize: 128
     timeout: 10
     events:
       - http:
@@ -36,7 +36,7 @@ functions:
           cors: true
           request:
             template:
-              application/json: '{ "utm" : "$input.params(''utm'')", "grid" : "$input.params(''grid'')", "lat" : "$input.params(''lat'')", "full" : "$input.params(''full'')", "level" : "$input.params(''level'')" }'
+              application/json: '{ "bbox" : "$input.params(''bbox'')", "utm" : "$input.params(''utm'')", "grid" : "$input.params(''grid'')", "lat" : "$input.params(''lat'')" }'
 
   overview:
     handler: app.sentinel.overview
@@ -79,17 +79,3 @@ functions:
           request:
             template:
               application/json: '{ "scene" : "$input.params(''scene'')", "expression" : "$input.params(''expression'')", "bbox" : "$input.params(''bbox'')" }'
-
-  # full:
-  #   handler: app.sentinel.full
-  #   memorySize: 3008
-  #   timeout: 30
-  #   events:
-  #     - http:
-  #         integration: lambda
-  #         path: full
-  #         method: get
-  #         cors: true
-  #         request:
-  #           template:
-  #             application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')" }'
