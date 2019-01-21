@@ -1,16 +1,12 @@
 """app.cbers: handle request for CBERS."""
 
 import os
-import logging
 
 import boto3
 
 from remotepixel import cbers_ovr, cbers_full, cbers_ndvi
 
 from aws_sat_api.search import cbers as cbers_search
-
-logger = logging.getLogger('remotepixel_api')
-logger.setLevel(logging.INFO)
 
 
 def search(event, context):

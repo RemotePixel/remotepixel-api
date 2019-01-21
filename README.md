@@ -24,7 +24,12 @@ Serverless architecture powering most of [remotepixel.ca](https://remotepixel.ca
 
 ```
 npm install
-make build & make deploy
+
+$ docker login
+
+$ make package
+
+$ make deploy
 ```
 
 ### Function

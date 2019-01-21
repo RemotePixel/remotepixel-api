@@ -3,16 +3,12 @@
 import os
 import json
 import uuid
-import logging
 
 import boto3
 
 from remotepixel import l8_ovr, l8_full, l8_ndvi
 
 from aws_sat_api.search import landsat as landsat_search
-
-logger = logging.getLogger('remotepixel_api')
-logger.setLevel(logging.INFO)
 
 
 def search(event, context):

@@ -1,16 +1,11 @@
 """app.sentinel: handle request for sentinel."""
 
-import logging
 import requests
 import datetime
 from urllib.parse import urlencode
 
 from remotepixel import s2_ovr, s2_ndvi
 from remotepixel.utils import zeroPad
-
-
-logger = logging.getLogger('remotepixel_api')
-logger.setLevel(logging.INFO)
 
 opensearchurl = "http://opensearch.sentinel-hub.com/resto/api/collections"
 

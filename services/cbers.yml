@@ -15,17 +15,36 @@ iam:
        - "arn:aws:s3:::remotepixel-${self:provider.region}/*"
 
 env:
+  GDAL_DATA: /var/task/share/gdal
   GDAL_CACHEMAX: 75%
-  VSI_CACHE: "TRUE"
+  VSI_CACHE: TRUE
   VSI_CACHE_SIZE: 536870912
+  CPL_TMPDIR: "/tmp"
+  GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: YES
+  GDAL_HTTP_MULTIPLEX: YES
+  GDAL_HTTP_VERSION: 2
   GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
   CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".TIF"
   AWS_REQUEST_PAYER: "requester"
   OUTPUT_BUCKET: remotepixel-${self:provider.region}
 
 functions:
+  search:
+    handler: remotepixel_api.cbers.search
+    memorySize: 128
+    timeout: 10
+    events:
+      - http:
+          integration: lambda
+          path: search
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "row" : "$input.params(''row'')", "path" : "$input.params(''path'')" }'
+
   overview:
-    handler: app.cbers.overview
+    handler: remotepixel_api.cbers.overview
     memorySize: 1536
     timeout: 10
     events:
@@ -39,7 +58,7 @@ functions:
               application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')", "format" : "$input.params(''format'')" }'
 
   ndvi:
-    handler: app.cbers.ndvi
+    handler: remotepixel_api.cbers.ndvi
     memorySize: 512
     timeout: 20
     events:
@@ -53,7 +72,7 @@ functions:
               application/json: '{ "scene" : "$input.params(''scene'')", "expression" : "$input.params(''expression'')", "lat" : "$input.params(''lat'')", "lon" : "$input.params(''lon'')" }'
 
   ndvi_area:
-    handler: app.cbers.ndvi_area
+    handler: remotepixel_api.cbers.ndvi_area
     memorySize: 512
     timeout: 20
     events:
@@ -67,7 +86,7 @@ functions:
               application/json: '{ "scene" : "$input.params(''scene'')", "expression" : "$input.params(''expression'')", "bbox" : "$input.params(''bbox'')" }'
 
   full:
-    handler: app.cbers.full
+    handler: remotepixel_api.cbers.full
     memorySize: 3008
     timeout: 30
     events:

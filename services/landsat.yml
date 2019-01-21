@@ -15,16 +15,35 @@ iam:
        - "arn:aws:s3:::remotepixel-${self:provider.region}/*"
 
 env:
+  GDAL_DATA: /var/task/share/gdal
   GDAL_CACHEMAX: 75%
-  VSI_CACHE: "TRUE"
+  VSI_CACHE: TRUE
   VSI_CACHE_SIZE: 536870912
+  CPL_TMPDIR: "/tmp"
+  GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: YES
+  GDAL_HTTP_MULTIPLEX: YES
+  GDAL_HTTP_VERSION: 2
   GDAL_DISABLE_READDIR_ON_OPEN: FALSE
   CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".TIF,.ovr"
   OUTPUT_BUCKET: remotepixel-${self:provider.region}
 
 functions:
+  search:
+    handler: remotepixel_api.landsat.search
+    memorySize: 512
+    timeout: 15
+    events:
+      - http:
+          integration: lambda
+          path: search
+          method: get
+          cors: true
+          request:
+            template:
+              application/json: '{ "row" : "$input.params(''row'')", "path" : "$input.params(''path'')", "full" : "$input.params(''full'')" }'
+
   overview:
-    handler: app.landsat.overview
+    handler: remotepixel_api.landsat.overview
     memorySize: 1536
     timeout: 10
     events:
@@ -38,7 +57,7 @@ functions:
               application/json: '{ "scene" : "$input.params(''scene'')", "bands" : "$input.params(''bands'')", "expression" : "$input.params(''expression'')", "format" : "$input.params(''format'')" }'
 
   ndvi:
-    handler: app.landsat.ndvi
+    handler: remotepixel_api.landsat.ndvi
     memorySize: 512
     timeout: 20
     events:
@@ -52,7 +71,7 @@ functions:
               application/json: '{ "scene" : "$input.params(''scene'')", "expression" : "$input.params(''expression'')", "lat" : "$input.params(''lat'')", "lon" : "$input.params(''lon'')" }'
 
   ndvi_area:
-    handler: app.landsat.ndvi_area
+    handler: remotepixel_api.landsat.ndvi_area
     memorySize: 512
     timeout: 20
     events:
@@ -66,7 +85,7 @@ functions:
               application/json: '{ "scene" : "$input.params(''scene'')", "expression" : "$input.params(''expression'')", "bbox" : "$input.params(''bbox'')" }'
 
   full:
-    handler: app.landsat.full
+    handler: remotepixel_api.landsat.full
     memorySize: 3008
     timeout: 30
     events:

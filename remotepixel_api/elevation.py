@@ -2,14 +2,10 @@
 
 import os
 import uuid
-import logging
 
 import boto3
 
 from remotepixel import srtm_mosaic
-
-logger = logging.getLogger('remotepixel_api')
-logger.setLevel(logging.INFO)
 
 
 def mosaic(event, context):
