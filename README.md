@@ -13,7 +13,7 @@ Serverless architecture powering most of [remotepixel.ca](https://remotepixel.ca
 ### How to
 `# TO DO`
 
-### Requierement
+### Requirement
   - AWS Account
   - awscli
   - Docker
